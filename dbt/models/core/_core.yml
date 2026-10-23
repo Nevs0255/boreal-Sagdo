@@ -1,23 +1,189 @@
 version: 2
 
 models:
+  - name: dim_date
+    description: "Calendrier jour par jour, 2019 à 2025."
+    columns:
+      - name: date_jour
+        description: "Jour (clé)."
+        data_tests: [unique, not_null]
+      - name: est_apres_extraction
+        description: "Vrai après le 30/06/2025 : période non observée."
+
+  - name: client_rapprochement
+    description: "Passage de chaque identifiant client du CRM vers l'identifiant conservé après déduplication (clé : empreinte d'e-mail)."
+    columns:
+      - name: client_id_source
+        description: "Identifiant présent dans le CRM."
+        data_tests: [unique, not_null]
+      - name: client_id_retenu
+        description: "Identifiant conservé (survivant)."
+        data_tests:
+          - not_null
+          - relationships: {arguments: {to: ref('dim_client'), field: client_id}}
+      - name: est_doublon
+        description: "Vrai si la fiche a été fusionnée dans une autre."
+
+  - name: dim_client
+    description: "Un client par ligne après rapprochement des doublons. Historique de type 1 (valeur courante) ; l'historique est conservé par le snapshot snap_clients."
+    columns:
+      - name: client_id
+        description: "Identifiant client conservé (clé)."
+        data_tests: [unique, not_null]
+      - name: date_naissance
+        description: "Date de naissance, inconnue (NULL) si absente, sentinelle ou impossible (règles CLI_01 à CLI_03)."
+      - name: age_extraction
+        description: "Âge en années révolues au 30/06/2025."
+      - name: tranche_age
+        description: "18-25, 26-35, 36-50, 51-65, 66+ ou Inconnu, calculée à la date d'extraction."
+        data_tests:
+          - accepted_values: {arguments: {values: ['18-25', '26-35', '36-50', '51-65', '66+', 'Inconnu']}}
+      - name: region
+        description: "Code de région (ex. IDF, ARA)."
+      - name: csp
+        description: "Catégorie socioprofessionnelle."
+      - name: consent_marketing
+        description: "Consentement à la prospection commerciale."
+      - name: email_hash
+        description: "Empreinte pseudonymisée de l'e-mail, clé de rapprochement des doublons."
+        data_tests: [unique]
+      - name: nb_fiches_fusionnees
+        description: "Nombre de fiches doublons rattachées à ce client."
+      - name: date_premiere_souscription
+        description: "Date d'effet du premier contrat du client."
+      - name: anomalies_signalees
+        description: "Règles de qualité signalées ou corrigées sur la fiche (non bloquantes)."
+
+  - name: dim_segment
+    description: "Segment de risque : combinaison produit × zone de risque × formule × canal."
+    columns:
+      - name: segment_key
+        description: "Clé du segment (empreinte MD5 des attributs)."
+        data_tests: [unique, not_null]
+
+  - name: dim_garantie
+    description: "Garanties par produit."
+    columns:
+      - name: garantie_key
+        description: "Clé produit|garantie."
+        data_tests: [unique, not_null]
+      - name: libelle
+        description: "Libellé métier de la garantie."
+
+  - name: dim_contrat
+    description: "Un contrat valide par ligne. Attributs fixés à la souscription (type 0)."
+    columns:
+      - name: contrat_id
+        description: "Identifiant du contrat (clé)."
+        data_tests: [unique, not_null]
+      - name: client_id
+        description: "Client conservé après rapprochement."
+        data_tests:
+          - not_null
+          - relationships: {arguments: {to: ref('dim_client'), field: client_id}}
+      - name: segment_key
+        description: "Segment de risque du contrat."
+        data_tests:
+          - not_null
+          - relationships: {arguments: {to: ref('dim_segment'), field: segment_key}}
+      - name: produit
+        description: "AUTO ou HABITATION."
+        data_tests:
+          - accepted_values: {arguments: {values: ['AUTO', 'HABITATION']}}
+      - name: prime_annuelle
+        description: "Prime annuelle en euros (strictement positive)."
+      - name: date_effet
+        description: "Début de couverture."
+      - name: date_resiliation
+        description: "Fin de couverture (vide si le contrat est en cours)."
+      - name: date_fin_observation
+        description: "Dernier jour couvert et observé : résiliation ou 30/06/2025."
+      - name: jours_couverts
+        description: "Durée de couverture observée, bornes incluses."
+      - name: annee_souscription
+        description: "Année de la date d'effet (cohorte)."
+
+  - name: fct_exposition
+    description: "Exposition. Grain : un contrat × une année civile. Base de toute fréquence (sinistres par année-police) et des primes acquises."
+    columns:
+      - name: exposition_id
+        description: "Clé contrat-année."
+        data_tests: [unique, not_null]
+      - name: contrat_id
+        description: "Contrat exposé."
+        data_tests:
+          - relationships: {arguments: {to: ref('dim_contrat'), field: contrat_id}}
+      - name: annee
+        description: "Année civile."
+      - name: jours_couverts
+        description: "Jours couverts dans l'année (bornes incluses)."
+      - name: annees_police
+        description: "Exposition en années-police : jours couverts / 365."
+      - name: prime_acquise
+        description: "Prime acquise : prime annuelle × jours couverts / 365."
+      - name: resilie_dans_annee
+        description: "Vrai si le contrat a été résilié pendant cette année."
+      - name: annee_complete
+        description: "Faux pour 2025, observée jusqu'au 30/06 seulement."
+
+  - name: fct_sinistre
+    description: "Sinistre. Grain : un sinistre valide, avec montants payés, réserve restante, délais et résultat d'audit."
+    columns:
+      - name: sinistre_id
+        description: "Identifiant du sinistre (clé)."
+        data_tests: [unique, not_null]
+      - name: contrat_id
+        description: "Contrat sinistré."
+        data_tests:
+          - relationships: {arguments: {to: ref('dim_contrat'), field: contrat_id}}
+      - name: garantie_key
+        description: "Garantie mise en jeu."
+        data_tests:
+          - relationships: {arguments: {to: ref('dim_garantie'), field: garantie_key}}
+      - name: statut
+        description: "OUVERT, CLOTURE, REJETE ou SANS_SUITE."
+        data_tests:
+          - accepted_values: {arguments: {values: ['OUVERT', 'CLOTURE', 'REJETE', 'SANS_SUITE']}}
+      - name: est_sans_suite
+        description: "Sinistre rejeté ou classé sans suite (aucun paiement)."
+      - name: reserve_initiale
+        description: "Réserve ouverte à la déclaration."
+      - name: montant_paye
+        description: "Total des règlements valides."
+      - name: reserve_restante
+        description: "Pour un dossier ouvert : réserve initiale moins montants payés (minimum 0)."
+      - name: charge_totale
+        description: "Montant payé + réserve restante."
+      - name: delai_declaration_j
+        description: "Jours entre survenance et déclaration (vide si déclaration antérieure à la survenance, règle SIN_06)."
+      - name: delai_premier_reglement_j
+        description: "Jours entre déclaration et premier règlement."
+      - name: delai_cloture_j
+        description: "Pour un dossier clôturé : jours entre déclaration et dernier règlement (date de clôture absente des sources)."
+      - name: est_audite
+        description: "Vrai si le dossier a été contrôlé par l'antifraude."
+      - name: fraude_confirmee
+        description: "Résultat de l'audit (vide si non audité)."
+      - name: est_atypique
+        description: "Réserve initiale supérieure à 1 M€ (règle SIN_08)."
+
   - name: fct_reglement
-    description: "Fait règlement, un paiement par ligne. Les paiements livrés dans plusieurs fichiers mensuels sont dédoublonnés (première livraison conservée)."
+    description: "Règlement. Grain : un paiement (paiement_id). Copies de livraison et paiements de sinistres en quarantaine exclus."
     columns:
       - name: paiement_id
-        description: "Identifiant du paiement (clé du fait)."
+        description: "Identifiant du paiement (clé)."
         data_tests: [unique, not_null]
       - name: sinistre_id
         description: "Sinistre réglé."
+        data_tests:
+          - relationships: {arguments: {to: ref('fct_sinistre'), field: sinistre_id}}
       - name: date_paiement
         description: "Date du paiement."
+        data_tests:
+          - relationships: {arguments: {to: ref('dim_date'), field: date_jour}}
       - name: montant
-        description: "Montant payé, en euros."
+        description: "Montant payé en euros."
       - name: mois_livraison
-        description: "Mois du fichier de la livraison retenue (AAAA_MM)."
+        description: "Mois du fichier de la livraison retenue."
       - name: nb_livraisons
-        description: "Nombre de fichiers dans lesquels le paiement a été livré (> 1 = livraison en double)."
-      - name: _fichier_source
-        description: "Fichier de la livraison retenue."
-      - name: _maj_le
-        description: "Date du dernier chargement brut ayant concerné ce paiement (pilote l'incrémental)."
+        description: "Nombre de fichiers ayant livré ce paiement (2 = livré en double)."

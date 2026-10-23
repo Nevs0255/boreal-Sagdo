@@ -1,17 +1,11 @@
--- Réconciliation brut -> cœur : chaque paiement identifiable de la couche brute est présent
--- une et une seule fois dans le cœur, avec le même total (le test échoue s'il renvoie une ligne).
+-- Chaque ligne de règlement brute se retrouve soit dans le cœur, soit en quarantaine,
+-- et les montants se réconcilient au centime (le test échoue s'il renvoie une ligne).
 with brut as (
-    select count(distinct paiement_id) as nb, sum(montant) as total
-    from (
-        select paiement_id, any_value(montant) as montant
-        from {{ ref('stg_reglements') }}
-        where paiement_id is not null
-        group by paiement_id
-    )
+    select count(*) as nb, sum(try_cast(montant as decimal(12, 2))) as total from {{ source('raw', 'reglements') }}
 ),
-coeur as (
-    select count(*) as nb, sum(montant) as total from {{ ref('fct_reglement') }}
-)
-select brut.nb as nb_brut, coeur.nb as nb_coeur, brut.total as total_brut, coeur.total as total_coeur
-from brut, coeur
-where brut.nb <> coeur.nb or brut.total <> coeur.total
+coeur as (select count(*) as nb, sum(montant) as total from {{ ref('fct_reglement') }}),
+quarantaine as (select count(*) as nb, coalesce(sum(montant), 0) as total from {{ ref('q_reglements') }})
+select brut.nb, coeur.nb as nb_coeur, quarantaine.nb as nb_quarantaine, brut.total, coeur.total + quarantaine.total as total_reconcilie
+from brut, coeur, quarantaine
+where brut.nb <> coeur.nb + quarantaine.nb
+   or brut.total <> coeur.total + quarantaine.total

@@ -1,0 +1,37 @@
+regle_id,entite,dimension,description,gravite,traitement
+CLI_01,clients,complétude,Date de naissance absente,MINEURE,SIGNALER
+CLI_02,clients,validité,Date de naissance sentinelle 1890-01-01 (âge supérieur à 120 ans),MINEURE,CORRIGER
+CLI_03,clients,validité,Date de naissance impossible : client encore mineur à la date d'extraction,MAJEURE,CORRIGER
+CLI_04,clients,unicité,Doublon de client (même empreinte d'e-mail qu'un client conservé),MAJEURE,EXCLURE
+CLI_05,clients,unicité,Identifiant client présent plusieurs fois,CRITIQUE,EXCLURE
+CLI_06,clients,validité,"Valeur illisible ou hors référentiel (identifiant, date, région, CSP, consentement)",MAJEURE,EXCLURE
+CLI_07,clients,cohérence temporelle,Client mineur à la date de sa première souscription,MINEURE,SIGNALER
+CTR_01,contrats,unicité,Identifiant contrat présent plusieurs fois,CRITIQUE,EXCLURE
+CTR_02,contrats,complétude,"Champ obligatoire absent, illisible ou hors référentiel (client, produit, dates, formule, canal, zone, franchise, prime)",CRITIQUE,EXCLURE
+CTR_03,contrats,cohérence entre tables,Client du contrat inconnu du CRM ou en quarantaine,CRITIQUE,EXCLURE
+CTR_04,contrats,validité,Prime annuelle nulle ou négative,MAJEURE,EXCLURE
+CTR_05,contrats,cohérence temporelle,Date de résiliation antérieure à la date d'effet,MAJEURE,EXCLURE
+CTR_06,contrats,cohérence temporelle,Contrat résilié le jour de son effet (couverture d'un jour),MINEURE,SIGNALER
+CTR_07,contrats,validité,Attribut incohérent avec le produit (auto sans puissance ou bonus-malus / habitation sans surface),MINEURE,SIGNALER
+CTR_08,contrats,cohérence temporelle,Date d'effet postérieure à la date d'extraction,MAJEURE,EXCLURE
+SIN_01,sinistres,unicité,Identifiant sinistre présent plusieurs fois,CRITIQUE,EXCLURE
+SIN_02,sinistres,complétude,"Champ obligatoire absent, illisible ou hors référentiel (contrat, dates, garantie, statut, réserve)",CRITIQUE,EXCLURE
+SIN_03,sinistres,cohérence entre tables,Contrat du sinistre inconnu,CRITIQUE,EXCLURE
+SIN_04,sinistres,cohérence entre tables,Contrat du sinistre en quarantaine,MAJEURE,EXCLURE
+SIN_05,sinistres,cohérence temporelle,Survenance hors de la période de couverture du contrat,MAJEURE,EXCLURE
+SIN_06,sinistres,cohérence temporelle,Déclaration antérieure à la survenance,MINEURE,CORRIGER
+SIN_07,sinistres,cohérence entre tables,Garantie incompatible avec le produit du contrat,MAJEURE,EXCLURE
+SIN_08,sinistres,validité,Réserve initiale atypique (supérieure à 1 million d'euros),MINEURE,SIGNALER
+SIN_09,sinistres,cohérence,Sinistre rejeté ou sans suite avec une réserve positive,MINEURE,SIGNALER
+REG_01,reglements,unicité,Paiement déjà livré dans un fichier antérieur (copie écartée),MAJEURE,EXCLURE
+REG_02,reglements,complétude,"Champ obligatoire absent ou illisible (paiement, sinistre, date, montant)",CRITIQUE,EXCLURE
+REG_03,reglements,cohérence entre tables,Sinistre du paiement inconnu,CRITIQUE,EXCLURE
+REG_04,reglements,cohérence entre tables,Sinistre du paiement en quarantaine,MAJEURE,EXCLURE
+REG_05,reglements,validité,Montant nul ou négatif,MAJEURE,EXCLURE
+REG_06,reglements,cohérence temporelle,Paiement antérieur à la survenance ou postérieur à l'extraction,MAJEURE,EXCLURE
+REG_07,reglements,cohérence temporelle,Ligne livrée dans un fichier postérieur à la date d'extraction,MINEURE,SIGNALER
+REG_08,reglements,cohérence,Paiement sur un sinistre rejeté ou sans suite,MAJEURE,SIGNALER
+AUD_01,audits,unicité,Sinistre audité plusieurs fois,MAJEURE,EXCLURE
+AUD_02,audits,complétude,"Champ absent, illisible ou hors référentiel (sinistre, date, résultat 0/1)",CRITIQUE,EXCLURE
+AUD_03,audits,cohérence entre tables,Sinistre audité inconnu ou en quarantaine,MAJEURE,EXCLURE
+AUD_04,audits,cohérence temporelle,Audit antérieur à la déclaration du sinistre,MINEURE,SIGNALER

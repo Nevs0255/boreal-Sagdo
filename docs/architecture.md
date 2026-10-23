@@ -48,8 +48,8 @@ Mesures prises sur la machine de développement (Apple M2, 8 Go de RAM) :
 | Mesure | Valeur |
 |---|---|
 | Volume des sources | 2,6 Mo, 68 fichiers, 41 848 lignes de données |
-| Taille de l'entrepôt après chargement | 3,0 Mo |
-| Pipeline complet depuis un entrepôt vide (`make clean && make run`) | 3,8 s, dont 11 modèles et tests dbt |
+| Taille de l'entrepôt après chargement | 11 Mo, toutes couches comprises |
+| Pipeline complet depuis un entrepôt vide (`make clean && make run`) | 5,5 s, dont 76 modèles, seeds, snapshot et tests dbt (état après le livrable 2) |
 | Rechargement d'un mois (`make reload MOIS=2024_03`) | moins de 4 s |
 | Environnement Python installé | 431 Mo, 5 dépendances directes |
 
@@ -57,7 +57,7 @@ Mesures prises sur la machine de développement (Apple M2, 8 Go de RAM) :
 |---|---|---|---|
 | **DuckDB 1.5** | Entrepôt | *Volumétrie* : 3 Mo d'entrepôt, alors que DuckDB traite des dizaines de Go sur un portable. *Coût* : 0 €, aucun serveur. *Maintenance* : un fichier unique, installé par `pip`. *Compétences* : SQL standard avec fonctions analytiques (`QUALIFY`, fenêtres). | SQLite : pas de type date natif ni de lecture JSON, fonctions d'analyse limitées. PostgreSQL : un serveur à installer et administrer, sans gain à ce volume, et un obstacle pour exécuter le pipeline sur une machine vierge. |
 | **Python 3** | Ingestion | Les sources mélangent 2 séparateurs, 2 encodages annoncés, 2 formats (CSV et JSON Lines) et 2 structures d'en-tête au sein des règlements. Une logique de détection, de traçabilité et de journalisation est plus robuste en Python qu'en SQL. | Ingestion 100 % SQL (`read_csv_auto`) : moins de contrôle sur les lignes illisibles et sur le journal. |
-| **dbt-core 1.12 + dbt-duckdb** | Transformations et tests | Couvre directement plusieurs critères notés : un test en échec bloque les modèles en aval (`dbt build`), tests d'unicité et d'intégrité inclus, catalogue et lignage générés (`dbt docs`), modèles incrémentaux. 11 nœuds construits et testés en 0,3 s. | Scripts SQL et runner maison : catalogue et lignage à écrire à la main. |
+| **dbt-core 1.12 + dbt-duckdb** | Transformations et tests | Couvre directement plusieurs critères notés : un test en échec bloque les modèles en aval (`dbt build`), tests d'unicité et d'intégrité inclus, catalogue et lignage générés (`dbt docs`), modèles incrémentaux possibles. 76 nœuds construits et testés en moins de 2 s. | Scripts SQL et runner maison : catalogue et lignage à écrire à la main. |
 | **Makefile** | Orchestration | 1 point d'entrée, 0 serveur. Toutes les opérations tiennent en une commande (`make run`, `make reload MOIS=…`). | Airflow, Prefect, Dagster : serveur ou compte cloud, une demi-journée à une journée de mise en place pour 68 fichiers et une exécution mensuelle. |
 | **Streamlit** (livrable 5) | Dashboard | Lit directement les marts DuckDB, donc mêmes chiffres que l'entrepôt. Gratuit, déjà disponible en Python. | Power BI : indisponible sur macOS. Tableau : licence payante, pas de connecteur DuckDB dans la version gratuite. |
 
@@ -67,7 +67,7 @@ Mesures prises sur la machine de développement (Apple M2, 8 Go de RAM) :
 |---|---|
 | Entrepôt | DuckDB tient toujours ce volume sur un poste. Le vrai seuil est ailleurs : DuckDB n'accepte qu'un processus en écriture. Avec plusieurs utilisateurs simultanés ou un dashboard publié, il faudrait passer à PostgreSQL ou à un entrepôt cloud (BigQuery, Snowflake). Les modèles dbt restent quasi identiques : seul l'adaptateur change. |
 | Ingestion | Lecture en flux et en parallèle par fichier, avec `read_csv` de DuckDB, plutôt qu'en mémoire via pandas. Couche brute stockée en Parquet partitionné par mois. |
-| Transformations | Les tables du cœur passent toutes en incrémental, comme `fct_reglement` aujourd'hui, au lieu d'une reconstruction complète. Les tests portent sur la dernière partition. |
+| Transformations | Les faits volumineux (règlements, exposition) passent en modèles dbt incrémentaux par mois au lieu d'une reconstruction complète. Les tests portent sur la dernière partition. |
 | Orchestration | Avec des dizaines de sources et des dépendances entre elles, un orchestrateur dédié (Dagster ou Airflow) apporte reprises, parallélisme et historique des exécutions. |
 | Dashboard | Les marts pré-agrégés suffisent. Il faudrait ajouter un cache et éviter tout calcul ligne à ligne dans l'application. |
 
@@ -88,7 +88,7 @@ Pour chaque fichier correspondant au motif d'une source (`pipeline/config.py`) :
 | Structure différente au sein des règlements | `reglements_2024_03.csv` : en-tête `montant_eur,paiement_id,sinistre_id,date_paiement` au lieu de `paiement_id,sinistre_id,date_paiement,montant` | Alignement des colonnes par leur nom (alias `montant_eur`), sans intervention manuelle |
 | Séparateurs différents | `;` pour les clients, `,` ailleurs | Détection automatique |
 | Encodage | `clients.csv` annoncé en latin-1, mais composé uniquement de caractères ASCII. Il est donc lu sans perte quel que soit le décodage. | Décodage UTF-8, repli automatique en latin-1 |
-| Paiements livrés deux fois | 3 207 lignes brutes pour 3 175 `paiement_id` distincts : 32 paiements réapparaissent à l'identique (même sinistre, date et montant) dans le fichier du mois suivant | Conservés en brut, dédoublonnés dans `core.fct_reglement` (première livraison conservée, `nb_livraisons` = 2) |
+| Paiements livrés deux fois | 3 207 lignes brutes pour 3 175 `paiement_id` distincts : 32 paiements réapparaissent à l'identique (même sinistre, date et montant) dans le fichier du mois suivant | Conservés en brut, dédoublonnés en couche cœur (première livraison conservée, copie en quarantaine, règle REG_01) |
 | Fichier postérieur à l'extraction | `reglements_2025_07.csv` existe alors que l'extraction date du 30/06/2025. Il contient 2 paiements datés de juin 2025. | Chargé tel quel. Traité comme règle de qualité au livrable 2. |
 
 Requête de contrôle des doublons :
@@ -123,7 +123,11 @@ SELECT count(*) AS lignes, count(DISTINCT paiement_id) AS paiements FROM raw.reg
 | Même contenu livré sous un autre nom | Refusé | `DOUBLON_LIVRAISON` |
 | Structure non conforme | Rien n'est chargé, code d'erreur, le pipeline s'arrête | `ECHEC` |
 
-Dans le cœur, `core.fct_reglement` applique le principe de l'énoncé (`NOT EXISTS` sur `paiement_id`) sous la forme d'un modèle dbt incrémental `delete+insert` sur `paiement_id`. Seuls les paiements touchés par un chargement récent sont recalculés, à partir de toute la couche brute, avec la même règle de survie. Le résultat est donc identique à celui d'une reconstruction complète.
+Le chargement incrémental se fait à l'entrée de l'entrepôt : seuls les fichiers nouveaux ou modifiés sont lus et écrits en couche brute, ce qui joue le rôle du `NOT EXISTS` de l'énoncé.
+
+Les couches `prep`, `core` et `marts` sont ensuite reconstruites intégralement par dbt à partir de la couche brute. Elles sont donc déterministes : à brut identique, le résultat est identique. Le dédoublonnage des paiements y garde la première livraison (`int_reglements`, règle REG_01).
+
+Ce choix est mesuré. La reconstruction complète prend moins de 2 s pour 3 207 règlements. Elle garantit aussi qu'une correction en amont se propage partout, par exemple un contrat qui passe en quarantaine écarte les paiements de ses sinistres. Un modèle incrémental devrait gérer ces cascades à part. Pour un volume 100 fois plus grand, voir la section 2.
 
 **Que se passe-t-il au second passage ?**
 - **Couche brute :** chaque fichier a la même empreinte, il est donc `IGNORE` et aucune ligne n'est écrite. Le journal garde la trace du passage.
@@ -141,4 +145,4 @@ Dans le cœur, `core.fct_reglement` applique le principe de l'énoncé (`NOT EXI
 | `test_structure_inconnue_bloque_le_fichier_sans_rien_charger` | Colonne inattendue : `ECHEC`, rien n'est chargé |
 | `test_lignes_illisibles_vont_en_rejet_avec_motif` | Lignes vides ou incomplètes : rejetées avec motif, journal cohérent (3 lues = 1 chargée + 2 rejetées) |
 
-Les tests dbt bloquants complètent la preuve : `unique` et `not_null` sur `fct_reglement.paiement_id`, et une réconciliation brut → cœur (même nombre de paiements, même montant total).
+Les tests dbt bloquants complètent la preuve : `unique` et `not_null` sur `fct_reglement.paiement_id`, et une réconciliation brut = cœur + quarantaine (même nombre de lignes, même montant au centime). Voir [qualite_modelisation.md](qualite_modelisation.md).

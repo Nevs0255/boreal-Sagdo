@@ -4,16 +4,37 @@ config-version: 2
 profile: boreal
 
 model-paths: ["models"]
+seed-paths: ["seeds"]
+snapshot-paths: ["snapshots"]
 test-paths: ["tests"]
 macro-paths: ["macros"]
 target-path: "target"
 clean-targets: ["target", "dbt_packages"]
+
+vars:
+  # Date d'extraction de l'archive : fin de la période observable.
+  date_extraction: "2025-06-30"
+  # Seuil de réserve atypique (règle SIN_08), en euros.
+  seuil_reserve_atypique: 1000000
+
+seeds:
+  boreal:
+    +schema: qualite
 
 models:
   boreal:
     staging:
       +schema: prep
       +materialized: view
+    intermediate:
+      +schema: prep
+      +materialized: table
+    quarantaine:
+      +schema: quarantaine
+      +materialized: table
+    qualite:
+      +schema: qualite
+      +materialized: table
     core:
       +schema: core
       +materialized: table

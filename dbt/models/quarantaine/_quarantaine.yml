@@ -1,0 +1,13 @@
+version: 2
+
+models:
+  - name: q_clients
+    description: "Fiches clients écartées, avec les règles violées et leur libellé. Rien n'est supprimé sans trace."
+  - name: q_contrats
+    description: "Contrats écartés (prime invalide, dates incohérentes, client inconnu…)."
+  - name: q_sinistres
+    description: "Sinistres écartés (hors couverture, contrat en quarantaine…)."
+  - name: q_reglements
+    description: "Lignes de règlement écartées, dont les copies de paiements livrés deux fois."
+  - name: q_audits
+    description: "Audits écartés."

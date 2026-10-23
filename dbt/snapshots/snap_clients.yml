@@ -1,0 +1,9 @@
+snapshots:
+  - name: snap_clients
+    description: "Historique (type 2) des attributs clients : une nouvelle version à chaque changement de région, CSP ou consentement lors d'une livraison du CRM."
+    relation: ref('dim_client')
+    config:
+      schema: snapshots
+      unique_key: client_id
+      strategy: check
+      check_cols: [region, csp, consent_marketing, date_naissance]

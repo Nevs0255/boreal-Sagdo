@@ -3,7 +3,12 @@
 Entrepôt de données et analyse du portefeuille de **Boréal Assurances** (assurance auto et habitation, janvier 2020 à juin 2025). Projet M2 Data Engineering et Data Analyse.
 
 Chaîne : sources → `raw` (copie fidèle) → `prep` (typage) → `core` (schéma en étoile) → `marts` → dashboard.
-Outils : Python, DuckDB, dbt, Makefile, Streamlit. Les choix sont justifiés dans [docs/architecture.md](docs/architecture.md).
+Outils : Python, DuckDB, dbt, Makefile, Streamlit.
+
+| Livrable | Document |
+|---|---|
+| L1 · Architecture et ingestion | [docs/architecture.md](docs/architecture.md) |
+| L2 · Qualité et modélisation | [docs/qualite_modelisation.md](docs/qualite_modelisation.md) |
 
 ## Exécution en 5 commandes
 
@@ -31,7 +36,7 @@ Autres commandes :
 | Chemin | Contenu |
 |---|---|
 | `pipeline/` | Ingestion Python vers la couche brute, journal d'ingestion |
-| `dbt/` | Modèles SQL `prep`, `core` et `marts`, tests de données |
+| `dbt/` | Modèles SQL `prep`, `quarantaine`, `core` et `marts`, catalogue des règles de qualité, tests de données |
 | `tests/` | Tests d'ingestion (idempotence, rechargement, livraisons anormales) |
 | `docs/` | Architecture et documentation des livrables |
 | `data/` | Sources et entrepôt DuckDB, non versionnés |

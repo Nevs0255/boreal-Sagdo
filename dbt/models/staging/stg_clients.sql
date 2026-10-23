@@ -1,10 +1,10 @@
--- Typage des clients. Les contrôles de qualité et la déduplication sont faits en couche cœur.
+-- Typage des clients, sans filtrage : les contrôles sont faits dans int_clients.
+{% set colonnes = {'client_id': 'integer', 'date_naissance': 'date_fr', 'region': 'texte', 'csp': 'texte',
+                   'consent_marketing': 'integer', 'email_hash': 'texte'} %}
 select
-    try_cast(nullif(trim(client_id), '') as integer)                      as client_id,
-    try_strptime(nullif(trim(date_naissance), ''), '%d/%m/%Y')::date      as date_naissance,
-    nullif(trim(region), '')                                               as region,
-    nullif(trim(csp), '')                                                  as csp,
-    try_cast(nullif(trim(consent_marketing), '') as integer)              as consent_marketing,
-    nullif(trim(email_hash), '')                                           as email_hash,
+    {% for col, type in colonnes.items() -%}
+    {{ convertir(col, type) }} as {{ col }},
+    {% endfor -%}
+    {{ colonnes_illisibles(colonnes) }} as colonnes_illisibles,
     _fichier_source, _numero_ligne, _date_chargement
 from {{ source('raw', 'clients') }}

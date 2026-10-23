@@ -1,0 +1,9 @@
+produit,garantie,libelle
+AUTO,RC,Responsabilité civile
+AUTO,COLLISION,Dommages collision
+AUTO,BRIS_GLACE,Bris de glace
+AUTO,VOL,Vol du véhicule
+HABITATION,DEGAT_EAUX,Dégât des eaux
+HABITATION,INCENDIE,Incendie
+HABITATION,TEMPETE,Tempête
+HABITATION,VOL,Vol et cambriolage
