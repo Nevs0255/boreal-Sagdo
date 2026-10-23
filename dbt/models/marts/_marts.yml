@@ -1,0 +1,38 @@
+version: 2
+
+models:
+  - name: mart_contrat_annee
+    description: "Base d'analyse au grain contrat × année : exposition, primes acquises, résiliations et sinistres de l'année de survenance. Mesures additives."
+    columns:
+      - name: exposition_id
+        description: "Clé contrat-année."
+        data_tests: [unique, not_null]
+      - name: annees_police
+        description: "Exposition en années-police (jours couverts / 365)."
+      - name: prime_acquise
+        description: "Prime acquise sur la période couverte de l'année."
+      - name: nb_resiliations
+        description: "1 si le contrat est résilié dans l'année."
+      - name: nb_sinistres_declares
+        description: "Sinistres survenus dans l'année, tous statuts."
+      - name: nb_sinistres
+        description: "Sinistres avec suite (ouverts ou clôturés) survenus dans l'année : base de la fréquence et du coût moyen."
+      - name: nb_sinistres_sans_suite
+        description: "Sinistres rejetés ou classés sans suite."
+      - name: montant_paye
+        description: "Règlements payés sur les sinistres de l'année."
+      - name: reserve_restante
+        description: "Réserves restantes des sinistres encore ouverts."
+      - name: charge
+        description: "Charge sinistres = payé + réserve restante."
+      - name: charge_hors_atypique
+        description: "Charge hors sinistre atypique (réserve > 1 M€, règle SIN_08)."
+
+  - name: mart_technique
+    description: "Indicateurs agrégés par année, produit, zone, formule, canal, région et tranche d'âge. Fréquence = nb_sinistres / annees_police ; coût moyen = charge / nb_sinistres ; prime moyenne = prime_acquise / annees_police ; S/P = charge / prime_acquise ; taux de résiliation = nb_resiliations / annees_police."
+
+  - name: mart_sinistres
+    description: "Un sinistre valide par ligne, enrichi des attributs du contrat, du client et de la garantie."
+    columns:
+      - name: sinistre_id
+        data_tests: [unique, not_null]

@@ -9,6 +9,7 @@ Outils : Python, DuckDB, dbt, Makefile, Streamlit.
 |---|---|
 | L1 · Architecture et ingestion | [docs/architecture.md](docs/architecture.md) |
 | L2 · Qualité et modélisation | [docs/qualite_modelisation.md](docs/qualite_modelisation.md) |
+| L3 · Analyse technique | [docs/analyse_technique.md](docs/analyse_technique.md), notebook [notebooks/L3_analyse_technique.ipynb](notebooks/L3_analyse_technique.ipynb) |
 
 ## Exécution en 5 commandes
 
@@ -28,6 +29,7 @@ Autres commandes :
 |---|---|
 | `make reload MOIS=2024_03` | Recharge un mois de règlements (aucun doublon créé) |
 | `make journal` | Dernière exécution et état de chaque source |
+| `make notebooks` | Réexécute les notebooks d'analyse sur l'entrepôt |
 | `make docs` | Catalogue de données et lignage (dbt docs) |
 | `make clean` | Supprime l'entrepôt (les sources sont conservées) |
 
@@ -37,6 +39,8 @@ Autres commandes :
 |---|---|
 | `pipeline/` | Ingestion Python vers la couche brute, journal d'ingestion |
 | `dbt/` | Modèles SQL `prep`, `quarantaine`, `core` et `marts`, catalogue des règles de qualité, tests de données |
+| `analyse/` | Définitions des indicateurs, décomposition du S/P, intervalles de confiance et tests (partagés notebooks et dashboard) |
+| `notebooks/` | Notebooks d'analyse exécutés (dossier) |
 | `tests/` | Tests d'ingestion (idempotence, rechargement, livraisons anormales) |
 | `docs/` | Architecture et documentation des livrables |
 | `data/` | Sources et entrepôt DuckDB, non versionnés |

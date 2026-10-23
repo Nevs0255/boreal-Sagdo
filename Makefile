@@ -6,7 +6,7 @@ DBT     := .venv/bin/dbt --no-use-colors
 DBT_DIR := --project-dir dbt --profiles-dir dbt
 SRC     ?= $(HOME)/Downloads/sources_boreal
 
-.PHONY: install sources ingest build run reload test docs journal clean
+.PHONY: install sources ingest build run reload test notebooks docs journal clean
 
 install:            ## Crée l'environnement Python et installe les dépendances
 	python3 -m venv .venv
@@ -33,6 +33,9 @@ reload:             ## Recharge un mois de règlements : make reload MOIS=2024_0
 test:               ## Tests d'ingestion (idempotence, rechargement) et tests dbt
 	$(PYTHON) -m pytest -q
 	$(DBT) test $(DBT_DIR)
+
+notebooks:          ## Réexécute les notebooks d'analyse sur l'entrepôt (sorties et figures à jour)
+	.venv/bin/jupyter nbconvert --to notebook --execute --inplace notebooks/*.ipynb
 
 docs:               ## Génère le catalogue de données et le lignage (dbt docs)
 	$(DBT) docs generate $(DBT_DIR)
