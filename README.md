@@ -12,6 +12,7 @@ Outils : Python, DuckDB, dbt, Makefile, Streamlit.
 | L3 · Analyse technique | [docs/analyse_technique.md](docs/analyse_technique.md), notebook [notebooks/L3_analyse_technique.ipynb](notebooks/L3_analyse_technique.ipynb) |
 | L4 · Clients et sinistres | [docs/clients_sinistres.md](docs/clients_sinistres.md), notebook [notebooks/L4_clients_sinistres.ipynb](notebooks/L4_clients_sinistres.ipynb) |
 | Dossier complet (30 pages) | [dossier/SAGDO_Boreal.pdf](dossier/SAGDO_Boreal.pdf), régénéré par `make dossier` |
+| Note exécutive (1 page) | [dossier/SAGDO_Boreal_note_executive.pdf](dossier/SAGDO_Boreal_note_executive.pdf), régénérée par `make dossier` |
 | L5 · Dashboard, exploitation, gouvernance | Dashboard `dashboard/app.py`, [catalogue des données](docs/catalogue.md), [lignage du S/P](docs/lignage_sp.md), [note exécutive](docs/note_executive.md), [analyse RGPD](docs/rgpd.md) |
 
 ## Exécution en 5 commandes

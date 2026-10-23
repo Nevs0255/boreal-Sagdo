@@ -29,6 +29,7 @@ RACINE = Path(__file__).resolve().parent.parent
 DOSSIER = RACINE / "dossier"
 FIGURES = DOSSIER / "figures"
 SORTIE = DOSSIER / "SAGDO_Boreal.pdf"
+SORTIE_NOTE = DOSSIER / "SAGDO_Boreal_note_executive.pdf"
 PORT = 8599
 # Nombre de morceaux de capture repris dans le dossier, par page du dashboard
 GARDER = {"": 1, "page_technique": 2, "page_exploitation": 1, "page_definitions": 0}
@@ -248,6 +249,26 @@ def localiser(sortie: Path, entrees: list[tuple[int, str, str]]) -> dict[str, in
     return pages
 
 
+def imprimer_note(navigateur) -> int:
+    """Note exécutive seule, sur une page, pour le rendu séparé demandé par le sujet."""
+    texte = adapter((RACINE / "docs" / "note_executive.md").read_text(encoding="utf-8"), None,
+                    "Note exécutive · Boréal Assurances", {})
+    corps = subprocess.run(["pandoc", "-f", "gfm", "-t", "html5", "--wrap=none"], input=texte,
+                           capture_output=True, text=True, check=True).stdout
+    style = (DOSSIER / "style.css").read_text(encoding="utf-8")
+    chemin_html = DOSSIER / "note_executive.html"
+    chemin_html.write_text(f"""<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>Note exécutive</title>
+<style>{style} h1 {{ page-break-before: avoid; }}</style></head><body><div class="note">{corps}</div></body></html>""", encoding="utf-8")
+    page = navigateur.new_page()
+    page.goto(chemin_html.as_uri(), wait_until="load")
+    page.pdf(path=str(SORTIE_NOTE), format="A4", print_background=True, display_header_footer=True,
+             header_template="<span></span>",
+             footer_template=PIED.replace('<span class="pageNumber"></span> / <span class="totalPages"></span>', "Note exécutive"),
+             margin={"top": "16mm", "bottom": "18mm", "left": "18mm", "right": "18mm"})
+    page.close()
+    return len(PdfReader(str(SORTIE_NOTE)).pages)
+
+
 def main() -> int:
     FIGURES.mkdir(parents=True, exist_ok=True)
     with sync_playwright() as p:
@@ -264,10 +285,15 @@ def main() -> int:
         pages = localiser(SORTIE, titres(corps))
         chemin_html.write_text(html_complet(corps, pages), encoding="utf-8")
         imprimer(navigateur, chemin_html, SORTIE)
+        pages_note = imprimer_note(navigateur)
         navigateur.close()
     total = len(PdfReader(str(SORTIE)).pages)
     manquants = [t for _, i, t in titres(corps) if i not in pages]
     print(f"{SORTIE.relative_to(RACINE)} : {total} pages ; titres sans page : {manquants or 'aucun'}")
+    print(f"{SORTIE_NOTE.relative_to(RACINE)} : {pages_note} page(s)")
+    if pages_note > 1:
+        print("ATTENTION : la note exécutive dépasse une page", file=sys.stderr)
+        return 1
     return 0
 
 
