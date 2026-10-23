@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- Planification macOS (launchd). Installée par `make planifier`, qui remplace __RACINE__.
+     Déclenchement : arrivée ou modification d'un fichier de règlements (WatchPaths), et chaque
+     jour à 7 h en filet de sécurité. Le script ne fait rien s'il n'y a pas de fichier nouveau. -->
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>fr.boreal.pipeline</string>
+    <key>WorkingDirectory</key>
+    <string>__RACINE__</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>__RACINE__/.venv/bin/python</string>
+        <string>-m</string>
+        <string>pipeline.surveiller</string>
+    </array>
+    <key>WatchPaths</key>
+    <array>
+        <string>__RACINE__/data/sources/reglements</string>
+        <string>__RACINE__/data/sources/crm</string>
+        <string>__RACINE__/data/sources/contrats</string>
+        <string>__RACINE__/data/sources/sinistres</string>
+        <string>__RACINE__/data/sources/antifraude</string>
+    </array>
+    <key>StartCalendarInterval</key>
+    <dict>
+        <key>Hour</key>
+        <integer>7</integer>
+        <key>Minute</key>
+        <integer>0</integer>
+    </dict>
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/usr/bin:/bin:/usr/sbin:/sbin:/opt/homebrew/bin</string>
+    </dict>
+    <key>StandardOutPath</key>
+    <string>__RACINE__/logs/launchd.log</string>
+    <key>StandardErrorPath</key>
+    <string>__RACINE__/logs/launchd.log</string>
+</dict>
+</plist>

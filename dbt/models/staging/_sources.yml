@@ -30,3 +30,13 @@ sources:
     tables:
       - name: journal_ingestion
         description: "Une ligne par fichier traité et par exécution : empreinte, lignes lues, chargées, rejetées, durée, statut."
+        columns:
+          - name: statut
+            description: "Résultat du traitement du fichier : CHARGE, RECHARGE, IGNORE (déjà chargé à l'identique), DOUBLON_LIVRAISON ou ECHEC."
+      - name: resultats_tests
+        description: "Résultats des tests dbt de chaque exécution, publiés par pipeline/publier_tests.py."
+        columns:
+          - name: statut
+            description: "Résultat du test : PASS, FAIL, WARN ou ERROR."
+      - name: effacements
+        description: "Demandes d'effacement RGPD appliquées à la couche brute (pipeline/effacer_client.py)."

@@ -1,0 +1,4 @@
+# Planification Linux / serveur (cron) : vérification chaque jour à 7 h ; le pipeline ne s'exécute
+# que si un fichier source nouveau ou modifié est arrivé (fichier mensuel des règlements).
+# Remplacer /chemin/vers/boreal-Sagdo puis installer avec : crontab -e
+0 7 * * * cd /chemin/vers/boreal-Sagdo && .venv/bin/python -m pipeline.surveiller >> logs/cron.log 2>&1

@@ -21,7 +21,9 @@ enrichis as (
     select
         c.*,
         p.date_premiere_souscription,
+        e.client_id is not null as est_efface,
         case
+            when e.client_id is not null then e.client_id_retenu
             when c.email_hash is null or c.client_id is null then c.client_id
             else first_value(c.client_id) over (
                 partition by c.email_hash
@@ -30,6 +32,7 @@ enrichis as (
         end as client_id_retenu
     from clients c
     left join premiere_souscription p using (client_id)
+    left join {{ source('meta', 'effacements') }} e on e.client_id = c.client_id
 ),
 
 controles as (
@@ -41,10 +44,10 @@ controles as (
             'CLI_03': "date_naissance + interval 18 year > " ~ extraction,
             'CLI_04': "client_id_retenu <> client_id",
             'CLI_05': "rang_id > 1",
-            'CLI_06': "client_id is null or email_hash is null or len(colonnes_illisibles) > 0
+            'CLI_06': "not est_efface and (client_id is null or email_hash is null or len(colonnes_illisibles) > 0
                        or region not in ('ARA','BFC','BRE','COR','CVL','GES','HDF','IDF','NAQ','NOR','OCC','PACA','PDL')
                        or csp not in ('AGRICULTEUR','CADRE','EMPLOYE','ETUDIANT','INDEPENDANT','OUVRIER','RETRAITE','SANS_ACTIVITE')
-                       or consent_marketing not in (0, 1)",
+                       or consent_marketing not in (0, 1))",
             'CLI_07': "date_naissance + interval 18 year > date_premiere_souscription
                        and date_naissance + interval 18 year <= " ~ extraction,
         }) }} as anomalies

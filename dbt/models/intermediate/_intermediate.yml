@@ -1,0 +1,13 @@
+version: 2
+
+models:
+  - name: int_clients
+    description: "Clients contrôlés : règles CLI_01 à CLI_07, rapprochement des doublons (client_id_retenu), date de naissance corrigée."
+  - name: int_contrats
+    description: "Contrats contrôlés : règles CTR_01 à CTR_08, rattachement au client conservé."
+  - name: int_sinistres
+    description: "Sinistres contrôlés : règles SIN_01 à SIN_09, cohérence avec la période de couverture et la garantie."
+  - name: int_reglements
+    description: "Règlements contrôlés : règles REG_01 à REG_08, dédoublonnage des livraisons (première livraison conservée)."
+  - name: int_audits
+    description: "Audits contrôlés : règles AUD_01 à AUD_04."

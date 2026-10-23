@@ -1,0 +1,13 @@
+version: 2
+
+models:
+  - name: stg_clients
+    description: "Clients typés (dates JJ/MM/AAAA, entiers), sans filtrage. Vue."
+  - name: stg_contrats
+    description: "Contrats typés (dates, montants), sans filtrage. Vue."
+  - name: stg_sinistres
+    description: "Sinistres typés, sans filtrage. Vue."
+  - name: stg_reglements
+    description: "Règlements typés, avec le mois de livraison déduit du nom de fichier. Vue."
+  - name: stg_audits
+    description: "Audits antifraude typés. Vue."

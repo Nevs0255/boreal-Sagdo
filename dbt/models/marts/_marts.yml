@@ -51,3 +51,18 @@ models:
         data_tests: [unique, not_null]
       - name: valeur_observee
         description: "Primes acquises moins sinistres payés, de 2020 au 30/06/2025 (réserves non déduites)."
+  - name: mart_portefeuille_mensuel
+    description: "Suivi mensuel (page Portefeuille) : mois × produit × zone × canal × région ; primes acquises, années-police, contrats actifs, résiliations et sinistres du mois de survenance."
+    columns:
+      - name: prime_acquise
+        description: "Primes acquises dans le mois (prime annuelle × jours couverts dans le mois / 365)."
+      - name: annees_police
+        description: "Exposition du mois en années-police."
+      - name: nb_resiliations
+        description: "Contrats résiliés dans le mois."
+  - name: mart_exploitation_chargements
+    description: "État de la chaîne par source (page Exploitation) : dernier chargement, volumes, rejets, échecs et fraîcheur des données."
+  - name: mart_exploitation_regles
+    description: "Volume par règle de qualité (page Exploitation), copie de qualite.bilan_regles."
+  - name: mart_exploitation_tests
+    description: "Résultats des tests de la dernière exécution (page Exploitation). Vue sur meta.resultats_tests."

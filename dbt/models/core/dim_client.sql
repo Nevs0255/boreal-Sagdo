@@ -24,6 +24,7 @@ select
     c.email_hash,
     coalesce(f.nb_fiches_fusionnees, 0)                              as nb_fiches_fusionnees,
     c.date_premiere_souscription,
+    c.est_efface,
     c.anomalies                                                      as anomalies_signalees
 from {{ ref('int_clients') }} c
 left join fusions f on f.client_id_retenu = c.client_id

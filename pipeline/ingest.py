@@ -67,6 +67,27 @@ def initialiser(con: duckdb.DuckDBPyConnection) -> None:
         )"""
     )
     con.execute(
+        """CREATE TABLE IF NOT EXISTS meta.resultats_tests (
+            id_execution VARCHAR NOT NULL,
+            genere_le TIMESTAMP NOT NULL,
+            outil VARCHAR NOT NULL,
+            nom VARCHAR NOT NULL,
+            objet VARCHAR,
+            statut VARCHAR NOT NULL,
+            echecs INTEGER,
+            duree_s DOUBLE,
+            message VARCHAR
+        )"""
+    )
+    con.execute(
+        """CREATE TABLE IF NOT EXISTS meta.effacements (
+            client_id INTEGER NOT NULL,
+            client_id_retenu INTEGER NOT NULL,
+            demande_le TIMESTAMP NOT NULL,
+            motif VARCHAR
+        )"""
+    )
+    con.execute(
         """CREATE TABLE IF NOT EXISTS meta.journal_ingestion (
             id_execution VARCHAR NOT NULL,
             id_chargement VARCHAR NOT NULL,
@@ -261,6 +282,8 @@ def charger_fichier(
                 [fichier, source.nom, id_chargement, date_chargement],
             )
             con.unregister("lot_rejets")
+        if source.nom == "clients":
+            appliquer_effacements(con)
         resultat = dict(
             base, encodage=encodage, separateur=separateur, lignes_lues=lues,
             lignes_chargees=len(donnees), lignes_rejetees=len(df_rejets), statut=statut,
@@ -273,6 +296,16 @@ def charger_fichier(
         resultat = dict(base, encodage=encodage, statut="ECHEC", message=f"{type(erreur).__name__}: {erreur}")
         journaliser(con, **resultat, duree_s=time.perf_counter() - debut)
     return resultat
+
+
+def appliquer_effacements(con: duckdb.DuckDBPyConnection) -> None:
+    """Réapplique les effacements RGPD après tout (re)chargement du CRM : les attributs
+    personnels des clients effacés sont vidés dans la couche brute (voir effacer_client.py)."""
+    con.execute(
+        """UPDATE raw.clients
+           SET date_naissance = '', region = '', csp = '', consent_marketing = '0', email_hash = ''
+           WHERE client_id IN (SELECT CAST(client_id AS VARCHAR) FROM meta.effacements)"""
+    )
 
 
 def lister_fichiers(sources: list[Source], dossier_sources: Path) -> list[tuple[Source, Path]]:
