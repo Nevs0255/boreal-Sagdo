@@ -1,1 +1,39 @@
 # boreal-Sagdo
+
+Entrepôt de données et analyse du portefeuille de **Boréal Assurances** (assurance auto et habitation, janvier 2020 à juin 2025). Projet M2 Data Engineering et Data Analyse.
+
+Chaîne : sources → `raw` (copie fidèle) → `prep` (typage) → `core` (schéma en étoile) → `marts` → dashboard.
+Outils : Python, DuckDB, dbt, Makefile, Streamlit. Les choix sont justifiés dans [docs/architecture.md](docs/architecture.md).
+
+## Exécution en 5 commandes
+
+Prérequis : Python 3.10 ou plus, `make`, et l'archive `sources_boreal.zip` extraite.
+
+```bash
+git clone https://github.com/Nevs0255/boreal-Sagdo.git && cd boreal-Sagdo
+make install                                  # environnement Python et dépendances
+make sources SRC=~/Downloads/sources_boreal   # copie des sources dans data/sources
+make run                                      # ingestion + transformations + tests bloquants
+make test                                     # preuve d'idempotence et tests de l'entrepôt
+```
+
+Autres commandes :
+
+| Commande | Effet |
+|---|---|
+| `make reload MOIS=2024_03` | Recharge un mois de règlements (aucun doublon créé) |
+| `make journal` | Dernière exécution et état de chaque source |
+| `make docs` | Catalogue de données et lignage (dbt docs) |
+| `make clean` | Supprime l'entrepôt (les sources sont conservées) |
+
+## Organisation du dépôt
+
+| Chemin | Contenu |
+|---|---|
+| `pipeline/` | Ingestion Python vers la couche brute, journal d'ingestion |
+| `dbt/` | Modèles SQL `prep`, `core` et `marts`, tests de données |
+| `tests/` | Tests d'ingestion (idempotence, rechargement, livraisons anormales) |
+| `docs/` | Architecture et documentation des livrables |
+| `data/` | Sources et entrepôt DuckDB, non versionnés |
+
+Les données sources, pseudonymisées, ne sont pas versionnées : elles sont fournies par le cours.

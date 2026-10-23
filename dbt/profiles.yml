@@ -1,0 +1,8 @@
+boreal:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      # Chemin relatif à la racine du dépôt (dbt est lancé depuis la racine par le Makefile)
+      path: "{{ env_var('BOREAL_DB', 'data/warehouse/boreal.duckdb') }}"
+      threads: 4

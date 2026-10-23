@@ -1,0 +1,32 @@
+version: 2
+
+sources:
+  - name: raw
+    description: "Couche brute : copie fidèle des fichiers sources, toutes colonnes en texte, chargée par pipeline/ingest.py."
+    schema: raw
+    tables:
+      - name: clients
+        description: "CRM : un client par ligne (crm/clients.csv, séparateur ';')."
+      - name: contrats
+        description: "Gestion des contrats auto et habitation (contrats/contrats.csv)."
+      - name: sinistres
+        description: "Gestion des sinistres, un objet JSON par ligne (sinistres/sinistres.jsonl)."
+      - name: reglements
+        description: "Paiements de sinistres, un fichier par mois (reglements/reglements_AAAA_MM.csv)."
+        columns:
+          - name: _fichier_source
+            description: "Chemin du fichier d'origine, relatif au dossier des sources."
+            data_tests: [not_null]
+          - name: _date_chargement
+            description: "Horodatage de l'exécution d'ingestion qui a chargé la ligne."
+            data_tests: [not_null]
+      - name: audits
+        description: "Audits antifraude : dossiers contrôlés uniquement (antifraude/audits.csv)."
+      - name: rejets_ingestion
+        description: "Lignes illisibles à l'ingestion (vides, nombre de champs incorrect, JSON invalide), avec leur motif."
+
+  - name: meta
+    schema: meta
+    tables:
+      - name: journal_ingestion
+        description: "Une ligne par fichier traité et par exécution : empreinte, lignes lues, chargées, rejetées, durée, statut."

@@ -1,0 +1,23 @@
+version: 2
+
+models:
+  - name: fct_reglement
+    description: "Fait règlement, un paiement par ligne. Les paiements livrés dans plusieurs fichiers mensuels sont dédoublonnés (première livraison conservée)."
+    columns:
+      - name: paiement_id
+        description: "Identifiant du paiement (clé du fait)."
+        data_tests: [unique, not_null]
+      - name: sinistre_id
+        description: "Sinistre réglé."
+      - name: date_paiement
+        description: "Date du paiement."
+      - name: montant
+        description: "Montant payé, en euros."
+      - name: mois_livraison
+        description: "Mois du fichier de la livraison retenue (AAAA_MM)."
+      - name: nb_livraisons
+        description: "Nombre de fichiers dans lesquels le paiement a été livré (> 1 = livraison en double)."
+      - name: _fichier_source
+        description: "Fichier de la livraison retenue."
+      - name: _maj_le
+        description: "Date du dernier chargement brut ayant concerné ce paiement (pilote l'incrémental)."

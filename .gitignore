@@ -1,0 +1,17 @@
+# Environnement
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.DS_Store
+
+# Données : sources pseudonymisées fournies par le cours (non versionnées)
+data/sources/
+data/warehouse/
+logs/
+
+# dbt
+dbt/target/
+dbt/logs/
+dbt/dbt_packages/
+dbt/.user.yml
