@@ -27,7 +27,7 @@ Les sinistres sont rattachés à leur année de survenance. Les sinistres rejet�
 | Indicateur | Valeur | IC 95 % |
 |---|---|---|
 | Fréquence | 4,30 % | 4,11 – 4,50 |
-| Coût moyen | 6 020 € | 4 410 – 8 851 |
+| Coût moyen | 6 020 € | 4 418 – 8 846 |
 | Prime moyenne | 442 € | 439 – 446 |
 | S/P | 58,5 % | 42,7 – 86,1 |
 | S/P hors sinistre atypique | 46,2 % | 41,6 – 51,2 |
@@ -100,7 +100,7 @@ L'habitation zone 5 est le seul segment à la fois structurellement cher et cont
 | Indicateur | Auto | Habitation |
 |---|---|---|
 | Fréquence | 4,38 % (4,12 – 4,66) | 4,21 % (3,95 – 4,49) |
-| Coût moyen | 7 544 € (4 616 – 12 743) | 4 343 € (3 779 – 4 930) |
+| Coût moyen | 7 544 € (4 625 – 12 992) | 4 343 € (3 804 – 4 944) |
 | Prime moyenne | 589 € (586 – 593) | 287 € (285 – 289) |
 | S/P | 56,1 % (34,0 – 95,8) | 63,8 % (55,2 – 73,7) |
 | S/P hors atypique | 38,0 % (32,8 – 44,2) | 63,8 % (55,2 – 73,7) |

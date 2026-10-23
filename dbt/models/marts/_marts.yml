@@ -36,3 +36,18 @@ models:
     columns:
       - name: sinistre_id
         data_tests: [unique, not_null]
+
+  - name: mart_retention_contrats
+    description: "Rétention des contrats par cohorte de souscription, produit, détention de l'autre produit à la souscription et ancienneté (1 à 5 ans). Taux = nb_retenus / nb_contrats, valable seulement si cellule_complete."
+    columns:
+      - name: cellule_complete
+        description: "Vrai si tous les contrats de la cellule ont atteint l'anniversaire avant le 30/06/2025."
+  - name: mart_retention_clients
+    description: "Rétention client à un an depuis le 1er janvier 2021 à 2024, selon le nombre de produits détenus (1 ou 2)."
+  - name: mart_clients
+    description: "Un client par ligne : produits détenus, primes acquises, sinistres payés, valeur observée (primes acquises − sinistres payés)."
+    columns:
+      - name: client_id
+        data_tests: [unique, not_null]
+      - name: valeur_observee
+        description: "Primes acquises moins sinistres payés, de 2020 au 30/06/2025 (réserves non déduites)."
