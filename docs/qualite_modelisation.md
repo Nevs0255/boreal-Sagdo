@@ -184,7 +184,7 @@ Les sources ne contiennent pas de date de clôture. Pour un dossier clôturé, l
 - `make run` lance `dbt build`, qui exécute chaque test juste après le modèle testé. Un test en échec interrompt la construction des modèles qui en dépendent.
 - `make test` relance en plus les tests pytest du livrable 1.
 
-**État actuel :** 76 nœuds dbt, dont 48 tests, et 6 tests pytest, tous au vert.
+**État actuel (version livrée) :** 94 éléments dbt, dont 56 tests (les marts des livrables 3 à 5 en ajoutent 8), et 17 tests pytest, tous au vert.
 
 | Test | Type | Vérifie |
 |---|---|---|

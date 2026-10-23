@@ -6,6 +6,7 @@ Lancement : make dashboard
 """
 
 import os
+import re
 import sys
 from pathlib import Path
 
@@ -118,7 +119,11 @@ def page_portefeuille():
                  "(au-delà, les frais de gestion et d'acquisition ne sont plus couverts : voir Définitions).")
     c = st.columns(3) + st.columns(3)
     def delta(a, b, fmt):
-        return None if pd.isna(a) or pd.isna(b) or b == 0 else fmt(a - b)
+        if pd.isna(a) or pd.isna(b) or b == 0:
+            return None
+        texte = fmt(a - b)
+        # Un écart qui s'arrondit à zéro s'affiche sans signe (« 0,00 pt » plutôt que « -0,00 pt »)
+        return texte.lstrip("+-") if re.fullmatch(r"[+-]?0([,.]0+)?\s.*", texte) else texte
     c[0].metric("Primes acquises", euros(k["primes"]), delta(k["primes"], k1["primes"], lambda x: ("+" if x > 0 else "") + euros(x)),
                 help="Prime annuelle × jours couverts / 365, sur la période.")
     c[1].metric("Contrats actifs (fin de période)", f"{k['actifs']:,.0f}".replace(",", " "),

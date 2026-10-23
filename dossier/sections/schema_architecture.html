@@ -1,0 +1,33 @@
+<div class="schema">
+  <div class="colonne">
+    <div class="titre-col">Sources · <code>data/sources</code></div>
+    <div class="boite source">crm/clients.csv<small>; · latin-1 annoncé</small></div>
+    <div class="boite source">contrats/contrats.csv<small>, · UTF-8</small></div>
+    <div class="boite source">sinistres/sinistres.jsonl<small>JSON Lines</small></div>
+    <div class="boite source">reglements/reglements_AAAA_MM.csv<small>64 fichiers mensuels</small></div>
+    <div class="boite source">antifraude/audits.csv</div>
+  </div>
+  <div class="fleche">→</div>
+  <div class="colonne">
+    <div class="titre-col">Ingestion · Python</div>
+    <div class="boite outil">pipeline/ingest.py<small>encodage, séparateur, en-têtes, empreinte SHA-256</small></div>
+  </div>
+  <div class="fleche">→</div>
+  <div class="colonne entrepot">
+    <div class="titre-col">Entrepôt DuckDB · <code>boreal.duckdb</code></div>
+    <div class="boite couche">raw<small>copie fidèle en texte + fichier, ligne, chargement</small></div>
+    <div class="boite meta">raw.rejets_ingestion · meta.journal_ingestion</div>
+    <div class="sous-fleche">↓ dbt build : modèles SQL + tests bloquants</div>
+    <div class="boite couche">prep<small>typage, 36 règles de qualité</small></div>
+    <div class="boite meta">quarantaine · lignes écartées + motif</div>
+    <div class="boite couche">core<small>schéma en étoile</small></div>
+    <div class="boite couche">marts<small>indicateurs</small></div>
+  </div>
+  <div class="fleche">→</div>
+  <div class="colonne">
+    <div class="titre-col">Restitution</div>
+    <div class="boite outil">Dashboard Streamlit</div>
+    <div class="boite outil">Notebooks · dossier PDF</div>
+  </div>
+</div>
+<div class="orchestration">Orchestration : <code>Makefile</code> + <code>pipeline/surveiller.py</code> (nouveau fichier → ingestion → dbt build → tests ; alerte en cas d'échec)</div>

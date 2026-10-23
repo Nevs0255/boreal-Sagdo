@@ -11,3 +11,5 @@ nbconvert==7.17.2
 ipykernel==7.4.0
 streamlit==1.66.0
 plotly==7.1.0
+playwright==1.64.0
+pypdf==6.21.1

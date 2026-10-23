@@ -48,16 +48,16 @@ Mesures prises sur la machine de développement (Apple M2, 8 Go de RAM) :
 | Mesure | Valeur |
 |---|---|
 | Volume des sources | 2,6 Mo, 68 fichiers, 41 848 lignes de données |
-| Taille de l'entrepôt après chargement | 11 Mo, toutes couches comprises |
-| Pipeline complet depuis un entrepôt vide (`make clean && make run`) | 5,5 s, dont 76 modèles, seeds, snapshot et tests dbt (état après le livrable 2) |
-| Rechargement d'un mois (`make reload MOIS=2024_03`) | moins de 4 s |
-| Environnement Python installé | 431 Mo, 5 dépendances directes |
+| Taille de l'entrepôt après chargement | 17 Mo, toutes couches comprises |
+| Pipeline complet depuis un entrepôt vide (`make clean && make run`) | 7,0 s : ingestion, 94 éléments dbt (modèles, seeds, snapshot, 56 tests) et publication des tests |
+| Rechargement d'un mois (`make reload MOIS=2024_03`) | 5,0 s, transformations et tests compris |
+| Environnement Python installé | 1,1 Go, 15 dépendances directes épinglées (dont le dashboard, les notebooks et la génération du dossier) |
 
 | Outil | Rôle | Critère mesurable | Alternatives écartées |
 |---|---|---|---|
 | **DuckDB 1.5** | Entrepôt | *Volumétrie* : 3 Mo d'entrepôt, alors que DuckDB traite des dizaines de Go sur un portable. *Coût* : 0 €, aucun serveur. *Maintenance* : un fichier unique, installé par `pip`. *Compétences* : SQL standard avec fonctions analytiques (`QUALIFY`, fenêtres). | SQLite : pas de type date natif ni de lecture JSON, fonctions d'analyse limitées. PostgreSQL : un serveur à installer et administrer, sans gain à ce volume, et un obstacle pour exécuter le pipeline sur une machine vierge. |
 | **Python 3** | Ingestion | Les sources mélangent 2 séparateurs, 2 encodages annoncés, 2 formats (CSV et JSON Lines) et 2 structures d'en-tête au sein des règlements. Une logique de détection, de traçabilité et de journalisation est plus robuste en Python qu'en SQL. | Ingestion 100 % SQL (`read_csv_auto`) : moins de contrôle sur les lignes illisibles et sur le journal. |
-| **dbt-core 1.12 + dbt-duckdb** | Transformations et tests | Couvre directement plusieurs critères notés : un test en échec bloque les modèles en aval (`dbt build`), tests d'unicité et d'intégrité inclus, catalogue et lignage générés (`dbt docs`), modèles incrémentaux possibles. 76 nœuds construits et testés en moins de 2 s. | Scripts SQL et runner maison : catalogue et lignage à écrire à la main. |
+| **dbt-core 1.12 + dbt-duckdb** | Transformations et tests | Couvre directement plusieurs critères notés : un test en échec bloque les modèles en aval (`dbt build`), tests d'unicité et d'intégrité inclus, catalogue et lignage générés (`dbt docs`), modèles incrémentaux possibles. 94 éléments construits et testés en moins de 5 s. | Scripts SQL et runner maison : catalogue et lignage à écrire à la main. |
 | **Makefile** | Orchestration | 1 point d'entrée, 0 serveur. Toutes les opérations tiennent en une commande (`make run`, `make reload MOIS=…`). | Airflow, Prefect, Dagster : serveur ou compte cloud, une demi-journée à une journée de mise en place pour 68 fichiers et une exécution mensuelle. |
 | **Streamlit** (livrable 5) | Dashboard | Lit directement les marts DuckDB, donc mêmes chiffres que l'entrepôt. Gratuit, déjà disponible en Python. | Power BI : indisponible sur macOS. Tableau : licence payante, pas de connecteur DuckDB dans la version gratuite. |
 

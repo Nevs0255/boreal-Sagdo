@@ -1,0 +1,96 @@
+@page { size: A4; }
+:root { --encre: #1f2937; --bleu: #1f3a5f; --accent: #2e7d9a; --gris: #6b7280; --fond: #f3f6f9; --trait: #d6dde5; }
+html { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 8.7pt; color: var(--encre); line-height: 1.32; }
+body { margin: 0; }
+main { counter-reset: figure; }
+
+/* Couverture */
+.couverture { height: 255mm; display: flex; flex-direction: column; justify-content: center; page-break-after: always;
+  border-left: 6mm solid var(--bleu); padding-left: 12mm; }
+.couverture .bandeau { color: var(--accent); font-weight: 700; letter-spacing: .08em; text-transform: uppercase; font-size: 9pt; }
+.couverture .titre { font-size: 26pt; line-height: 1.15; color: var(--bleu); margin: 10mm 0 6mm; border: none; padding: 0; }
+.couverture .client { font-size: 13pt; margin: 0 0 3mm; }
+.couverture .sous-titre { font-size: 11pt; color: var(--gris); margin: 0 0 30mm; }
+.couverture .auteur p { margin: 1mm 0; font-size: 10.5pt; }
+
+/* Sommaire */
+.sommaire { page-break-after: always; }
+.sommaire ul { list-style: none; padding: 0; margin: 0; }
+.sommaire li a { display: flex; color: var(--encre); text-decoration: none; padding: 0.45mm 0; }
+.sommaire li .t { flex: 1; border-bottom: 1px dotted #b8c2cc; margin-right: 2mm; }
+.sommaire li.n1 { margin-top: 1.8mm; font-weight: 700; color: var(--bleu); }
+.sommaire li.n1 a { color: var(--bleu); }
+.sommaire li.n2 { padding-left: 7mm; font-size: 8.4pt; }
+
+/* Titres */
+h1 { font-size: 19pt; color: var(--bleu); border-bottom: 2.5px solid var(--accent); padding-bottom: 2mm; margin: 0 0 5mm;
+  page-break-before: always; }
+.sommaire h1, .couverture h1 { page-break-before: avoid; }
+h2 { font-size: 13pt; color: var(--bleu); margin: 6mm 0 2.5mm; page-break-after: avoid; }
+h3 { font-size: 11pt; color: var(--accent); margin: 4mm 0 2mm; page-break-after: avoid; }
+p { margin: 0 0 2.4mm; text-align: justify; }
+ul, ol { margin: 0 0 2.6mm; padding-left: 6mm; }
+li { margin: 0.6mm 0; }
+strong { color: #111827; }
+
+/* Tableaux */
+table { border-collapse: collapse; width: 100%; margin: 2mm 0 4mm; font-size: 8.3pt; page-break-inside: auto; }
+thead { display: table-header-group; }
+tr { page-break-inside: avoid; }
+th { background: var(--bleu); color: white; text-align: left; padding: 1.4mm 1.8mm; font-weight: 600; }
+td { padding: 1.2mm 1.8mm; border-bottom: 1px solid var(--trait); vertical-align: top; }
+tbody tr:nth-child(even) td { background: var(--fond); }
+td code { font-size: 7.4pt; word-break: break-word; }
+
+/* Code */
+code { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 8.2pt; background: var(--fond); padding: 0 1mm; border-radius: 2px; }
+pre { background: var(--fond); border-left: 3px solid var(--accent); padding: 2.5mm 3.5mm; font-size: 8pt; overflow: hidden;
+  white-space: pre-wrap; page-break-inside: avoid; margin: 2mm 0 4mm; }
+pre code { background: none; padding: 0; }
+
+/* Images */
+img { max-width: 100%; display: block; margin: 3mm auto; page-break-inside: avoid; }
+p > img { max-height: 78mm; max-width: 82%; }
+figure.capture { margin: 0; page-break-inside: avoid; }
+figure.capture img { max-height: 118mm; width: auto; max-width: 100%; border: 1px solid var(--trait); }
+figcaption { text-align: center; font-size: 8pt; color: var(--gris); margin-top: 1mm; }
+blockquote { border-left: 3px solid var(--accent); margin: 2mm 0; padding: 1mm 4mm; color: var(--gris); }
+em { color: #374151; }
+
+/* Note exécutive : une page */
+.note { font-size: 8.7pt; line-height: 1.3; }
+.note h2 { font-size: 11pt; margin: 3mm 0 1.5mm; }
+.note p, .note li { margin-bottom: 1mm; }
+/* Tableau des règles : colonnes de code compactes */
+td code { font-size: 6.8pt; }
+
+/* La conclusion et les annexes s'enchaînent sans saut de page */
+h1#annexes, h1#conclusion { page-break-before: avoid; margin-top: 8mm; }
+
+/* Captures du dashboard : grille 2 × 2 sur une page */
+.captures { display: grid; grid-template-columns: 1fr 1fr; gap: 3mm; page-break-inside: avoid; margin: 3mm 0; }
+.captures img { margin: 0 auto; }
+/* Tableaux larges (7 colonnes, ex. les 36 règles) : plus compacts */
+table:has(th:nth-child(7)) { font-size: 7.1pt; }
+table:has(th:nth-child(7)) td { padding: 0.8mm 1.2mm; }
+table:has(th:nth-child(7)) td:nth-child(4) { width: 34%; }
+
+/* Diagrammes : toute la largeur de la page */
+img.diagramme-large { width: 100%; max-width: 100%; max-height: 125mm; object-fit: contain; }
+img.diagramme { max-height: 78mm; max-width: 82%; }
+.saut { break-before: page; }
+
+/* Schéma d'architecture (HTML) */
+.schema { display: flex; align-items: center; gap: 2mm; margin: 3mm 0 1.5mm; font-size: 7.6pt; page-break-inside: avoid; }
+.schema .colonne { flex: 1; display: flex; flex-direction: column; gap: 1.4mm; }
+.schema .entrepot { flex: 1.3; border: 1px dashed var(--accent); border-radius: 2mm; padding: 2mm; background: #f8fbfd; }
+.schema .titre-col { font-weight: 700; color: var(--bleu); font-size: 7.8pt; margin-bottom: 0.5mm; }
+.schema .boite { border: 1px solid var(--trait); border-radius: 1.5mm; padding: 1.3mm 2mm; background: white; line-height: 1.25; }
+.schema .boite small { display: block; color: var(--gris); font-size: 6.6pt; }
+.schema .source { border-left: 3px solid #9bbb59; }
+.schema .outil { border-left: 3px solid var(--accent); }
+.schema .couche { border-left: 3px solid var(--bleu); font-weight: 600; }
+.schema .meta { color: var(--gris); font-size: 6.8pt; background: var(--fond); }
+.schema .fleche { font-size: 16pt; color: var(--accent); }
+.schema .sous-fleche { color: var(--accent); font-size: 7pt; text-align: center; }
+.orchestration { font-size: 7.6pt; border-top: 1px solid var(--trait); padding-top: 1.5mm; margin-bottom: 4mm; color: var(--gris); }

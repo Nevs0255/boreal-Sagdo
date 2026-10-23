@@ -6,7 +6,7 @@ DBT     := .venv/bin/dbt --no-use-colors
 DBT_DIR := --project-dir dbt --profiles-dir dbt
 SRC     ?= $(HOME)/Downloads/sources_boreal
 
-.PHONY: install sources ingest build run reload test notebooks dashboard docs journal surveiller planifier deplanifier effacer clean
+.PHONY: install sources ingest build run reload test notebooks dashboard dossier docs journal surveiller planifier deplanifier effacer clean
 
 install:            ## Crée l'environnement Python et installe les dépendances
 	python3 -m venv .venv
@@ -36,6 +36,9 @@ test:               ## Tests d'ingestion (idempotence, rechargement) et tests db
 
 dashboard:          ## Lance le dashboard (http://localhost:8501)
 	.venv/bin/streamlit run dashboard/app.py
+
+dossier:            ## Génère le dossier PDF (dossier/SAGDO_Boreal.pdf) : nécessite Google Chrome et pandoc
+	$(PYTHON) dossier/construire.py
 
 notebooks:          ## Réexécute les notebooks d'analyse sur l'entrepôt (sorties et figures à jour)
 	.venv/bin/jupyter nbconvert --to notebook --execute --inplace notebooks/*.ipynb

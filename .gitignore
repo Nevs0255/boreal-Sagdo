@@ -18,3 +18,8 @@ dbt/.user.yml
 
 # Configuration locale de l'éditeur
 .claude/
+
+# Dossier PDF : fichiers intermédiaires régénérés par make dossier
+dossier/dossier.html
+dossier/dossier.md
+dossier/figures/

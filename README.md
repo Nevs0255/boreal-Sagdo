@@ -11,6 +11,7 @@ Outils : Python, DuckDB, dbt, Makefile, Streamlit.
 | L2 · Qualité et modélisation | [docs/qualite_modelisation.md](docs/qualite_modelisation.md) |
 | L3 · Analyse technique | [docs/analyse_technique.md](docs/analyse_technique.md), notebook [notebooks/L3_analyse_technique.ipynb](notebooks/L3_analyse_technique.ipynb) |
 | L4 · Clients et sinistres | [docs/clients_sinistres.md](docs/clients_sinistres.md), notebook [notebooks/L4_clients_sinistres.ipynb](notebooks/L4_clients_sinistres.ipynb) |
+| Dossier complet (30 pages) | [dossier/SAGDO_Boreal.pdf](dossier/SAGDO_Boreal.pdf), régénéré par `make dossier` |
 | L5 · Dashboard, exploitation, gouvernance | Dashboard `dashboard/app.py`, [catalogue des données](docs/catalogue.md), [lignage du S/P](docs/lignage_sp.md), [note exécutive](docs/note_executive.md), [analyse RGPD](docs/rgpd.md) |
 
 ## Exécution en 5 commandes
@@ -34,6 +35,7 @@ make dashboard                                # 5. tableau de bord sur http://lo
 | `make planifier` / `make deplanifier` | Installe ou retire la planification macOS (launchd) : déclenchement à l'arrivée d'un fichier, et chaque jour à 7 h en filet de sécurité. Pour cron : `orchestration/crontab.txt` |
 | `make journal` | Dernière exécution et état de chaque source |
 | `make notebooks` | Réexécute les notebooks d'analyse sur l'entrepôt |
+| `make dossier` | Régénère le dossier PDF (Google Chrome et pandoc requis) |
 | `make docs` | Régénère le catalogue des données (`docs/catalogue.md`) ; lignage interactif avec `dbt docs serve` |
 | `make effacer CLIENT=123` | Droit à l'effacement RGPD (voir [docs/rgpd.md](docs/rgpd.md)) |
 | `make clean` | Supprime l'entrepôt (les sources sont conservées) |
@@ -67,6 +69,7 @@ Quatre pages, alimentées uniquement par les tables `marts` de l'entrepôt :
 | `orchestration/` | Planification launchd (macOS) et cron |
 | `tests/` | Tests pytest : ingestion, analyse, effacement, surveillance, dashboard |
 | `docs/` | Documentation des livrables, catalogue, figures |
+| `dossier/` | Dossier PDF, ses sections propres, sa mise en page et son générateur |
 | `data/` | Sources et entrepôt DuckDB, non versionnés |
 
 Les données sources, pseudonymisées, ne sont pas versionnées : elles sont fournies par le cours.
